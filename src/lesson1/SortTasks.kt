@@ -2,6 +2,10 @@
 
 package lesson1
 
+import java.io.File
+
+
+
 /**
  * Сортировка времён
  *
@@ -33,7 +37,28 @@ package lesson1
  * В случае обнаружения неверного формата файла бросить любое исключение.
  */
 fun sortTimes(inputName: String, outputName: String) {
-    TODO()
+    val output = File(outputName).bufferedWriter()
+    val text = File(inputName).readLines()
+    val sorted = text.sortedBy { seconds(it) }
+    for (line in sorted) output.write(line + "\n")
+}
+
+fun seconds(time: String): Int {
+    if (!Regex("""([0-9]{2}):([0-9]{2}):([0-9]{2})\s[AP]M""").matches(time)) throw IllegalArgumentException()
+    val timeList = time.split(Regex("""\s|:""")).toMutableList()
+    if (timeList[0] == "12") timeList[0] = "00"
+    val hours = timeList[0].toByte()
+    val minutes = timeList[1].toByte()
+    val seconds = timeList[2].toByte()
+    val isPm = when (timeList[3]) {
+        "PM" -> true
+        "AM" -> false
+        else -> throw IllegalArgumentException()
+    }
+    if (hours !in 0..11 || minutes !in 0..59 || seconds !in 0..59) throw IllegalArgumentException()
+    val totalSeconds = hours * 3600 + minutes * 60 + seconds
+    return if (isPm) totalSeconds + 43200
+    else totalSeconds
 }
 
 /**
