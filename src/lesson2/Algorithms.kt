@@ -2,6 +2,8 @@
 
 package lesson2
 
+import java.io.File
+
 /**
  * Получение наибольшей прибыли (она же -- поиск максимального подмассива)
  * Простая
@@ -25,9 +27,28 @@ package lesson2
  * Например, для приведённого выше файла результат должен быть Pair(3, 4)
  *
  * В случае обнаружения неверного формата файла бросить любое исключение.
+ *
+ * Трудоемкость: O(n)
  */
 fun optimizeBuyAndSell(inputName: String): Pair<Int, Int> {
-    TODO()
+    val text = File(inputName).readLines()
+    var result = Pair(0, 0)
+    val priceList = mutableListOf<Int>()
+    for (line in text) priceList.add(line.toInt())
+    var maxDif = 0
+    var minIndex = 0
+    var min = priceList[0]
+    for (i in 0 until priceList.size - 1) {
+        if (priceList[i] <= min) {
+            min = priceList[i]
+            minIndex = i
+        }
+        if (priceList[i + 1] - priceList[minIndex] > maxDif) {
+            maxDif = priceList[i + 1] - priceList[minIndex]
+            result = Pair(minIndex + 1, i + 2)
+        }
+    }
+    return result
 }
 
 /**
