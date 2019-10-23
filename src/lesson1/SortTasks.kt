@@ -41,6 +41,7 @@ fun sortTimes(inputName: String, outputName: String) {
     val text = File(inputName).readLines()
     val sorted = text.sortedBy { seconds(it) }
     for (line in sorted) output.write(line + "\n")
+    output.close()
 }
 
 fun seconds(time: String): Int {
