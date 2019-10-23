@@ -151,7 +151,7 @@ fun <T : Comparable<T>> mergeArrays(first: Array<T>, second: Array<T?>) {
     var li = 0
     var ri = first.size
     for (i in 0 until second.size) {
-        if (li < first.size && (ri == second.size || first[li] <= second[ri])) {
+        if (li < first.size && (ri == second.size || first[li] <= second[ri]!!)) {
             second[i] = first[li++]
         } else {
             second[i] = second[ri++]
