@@ -12,7 +12,7 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
     override var size = 0
         private set
 
-    private class Node<T>(val value: T) {
+    private class Node<T>(var value: T) {
 
         var left: Node<T>? = null
 
@@ -61,10 +61,46 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
     /**
      * Удаление элемента в дереве
      * Средняя
+     *  Трудоемкость - O(h(высота дерева))
+     * Ресурсоемкость - O(1)
      */
     override fun remove(element: T): Boolean {
-        TODO()
+        if (find(element) == null) return false
+        remove(root, element)
+        size--
+        return true
     }
+
+    private fun minLeft(node: Node<T>): Node<T> {
+        if (node.left == null) return node
+        else return minLeft(node.left!!)
+    }
+
+    private fun maxRight(node: Node<T>): Node<T> {
+        if (node.right == null) return node
+        else return maxRight(node.right!!)
+    }
+
+    private fun remove(node: Node<T>?, element: T): Node<T>? {
+        if (node == null) return null
+        if (element > node.value) node.right = remove(node.right, element)
+        if (element < node.value) node.left = remove(node.left, element)
+        if (element == node.value) {
+            when {
+                node.left != null -> {
+                    node.value = maxRight(node.left!!).value
+                    node.left = remove(node.left, node.value)
+                }
+                node.right != null -> {
+                    node.value = minLeft(node.right!!).value
+                    node.right = remove(node.right, node.value)
+                }
+                else -> return null
+            }
+        }
+        return node
+    }
+
 
     override operator fun contains(element: T): Boolean {
         val closest = find(element)
@@ -84,22 +120,47 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
     }
 
     inner class BinaryTreeIterator internal constructor() : MutableIterator<T> {
+        private var current: Node<T>? = null
+        private var stack = Stack<Node<T>>()
+
+        init {
+            var node = root
+
+            while (node != null) {
+                stack.push(node)
+                node = node.left
+            }
+        }
+
+
         /**
          * Проверка наличия следующего элемента
          * Средняя
+         *  Трудоемкость - O(1)
+         * Ресурсоемкость - O(1)
          */
         override fun hasNext(): Boolean {
-            // TODO
-            throw NotImplementedError()
+            return current != null
         }
 
         /**
          * Поиск следующего элемента
          * Средняя
+         * Трудоемкость - О(n)
+         * Ресурсоемкость - О(1)
+         *
          */
         override fun next(): T {
-            // TODO
-            throw NotImplementedError()
+            while (current != null) {
+                stack.push(current)
+                current = current!!.left
+            }
+
+            current = stack.pop()
+            val node = current
+            current = current!!.right
+
+            return node!!.value
         }
 
         /**
@@ -107,8 +168,7 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
          * Сложная
          */
         override fun remove() {
-            // TODO
-            throw NotImplementedError()
+            TODO()
         }
     }
 
