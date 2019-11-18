@@ -120,17 +120,9 @@ class KtBinaryTree<T : Comparable<T>> : AbstractMutableSet<T>(), CheckableSorted
     }
 
     inner class BinaryTreeIterator internal constructor() : MutableIterator<T> {
-        private var current: Node<T>? = null
+        private var current = root
         private var stack = Stack<Node<T>>()
 
-        init {
-            var node = root
-
-            while (node != null) {
-                stack.push(node)
-                node = node.left
-            }
-        }
 
 
         /**
