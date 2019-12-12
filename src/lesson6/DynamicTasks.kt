@@ -4,6 +4,8 @@ package lesson6
 
 import java.io.File
 import java.lang.Integer.min
+import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * Наибольшая общая подпоследовательность.
@@ -24,23 +26,24 @@ fun longestCommonSubSequence(first: String, second: String): String {
     var str = String()
     val array = Array(first.length + 1) { IntArray(second.length + 1) }
 
-    for (i in first.indices) {
-        for (j in second.indices) {
-            if (i == 0 || j == 0) array[0][0] = 0
-            else if (first[i] == second[i]) array[i][j] = array[i - 1][j - 1] + 1
+    for (i in 0..first.length) {
+        for (j in 0..second.length) {
+            if (i == 0 || j == 0) array[i][j] = 0
+            else if (first[i - 1] == second[j - 1]) array[i][j] = array[i - 1][j - 1] + 1
             else array[i][j] = maxOf(array[i - 1][j], array[i][j - 1])
         }
     }
 
     var index = array[first.length][second.length]
-    val lcs = mutableListOf<Char>()
+    val lcs = ArrayDeque<Char>()
     var i = first.length
     var j = second.length
+
     if (index > 0) {
         while (i > 0 && j > 0) {
             when {
                 first[i - 1] == second[j - 1] -> {
-                    lcs[index - 1] = first[i - 1]
+                    lcs.push(first[i - 1])
                     i--
                     j--
                     index--
@@ -50,9 +53,11 @@ fun longestCommonSubSequence(first: String, second: String): String {
             }
         }
     }
+
     for (i in 0 until lcs.size) {
-        str += lcs[i]
+        str += lcs.pollFirst()
     }
+
     return str
 }
 
