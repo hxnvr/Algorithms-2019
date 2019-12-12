@@ -2,6 +2,9 @@
 
 package lesson6
 
+import java.io.File
+import java.lang.Integer.min
+
 /**
  * Наибольшая общая подпоследовательность.
  * Средняя
@@ -13,9 +16,44 @@ package lesson6
  * Если общей подпоследовательности нет, вернуть пустую строку.
  * Если есть несколько самых длинных общих подпоследовательностей, вернуть любую из них.
  * При сравнении подстрок, регистр символов *имеет* значение.
+ * Трудоемкость: O(first.length*second.length)
+ * Ресурсоемкость: O(first.length*second.length)
  */
 fun longestCommonSubSequence(first: String, second: String): String {
-    TODO()
+    if (first.isEmpty() || second.isEmpty()) return ""
+    var str = String()
+    val array = Array(first.length + 1) { IntArray(second.length + 1) }
+
+    for (i in first.indices) {
+        for (j in second.indices) {
+            if (i == 0 || j == 0) array[0][0] = 0
+            else if (first[i] == second[i]) array[i][j] = array[i - 1][j - 1] + 1
+            else array[i][j] = maxOf(array[i - 1][j], array[i][j - 1])
+        }
+    }
+
+    var index = array[first.length][second.length]
+    val lcs = mutableListOf<Char>()
+    var i = first.length
+    var j = second.length
+    if (index > 0) {
+        while (i > 0 && j > 0) {
+            when {
+                first[i - 1] == second[j - 1] -> {
+                    lcs[index - 1] = first[i - 1]
+                    i--
+                    j--
+                    index--
+                }
+                array[i - 1][j] > array[i][j - 1] -> i--
+                else -> j--
+            }
+        }
+    }
+    for (i in 0 until lcs.size) {
+        str += lcs[i]
+    }
+    return str
 }
 
 /**
@@ -53,9 +91,28 @@ fun longestIncreasingSubSequence(list: List<Int>): List<Int> {
  * Необходимо найти маршрут с минимальным весом и вернуть этот минимальный вес.
  *
  * Здесь ответ 2 + 3 + 4 + 1 + 2 = 12
+ * Трудоемкость O(width*height)
+ * Ресурсоемкость O(width*height)
  */
 fun shortestPathOnField(inputName: String): Int {
-    TODO()
+    val field = ArrayList<IntArray>()
+    File(inputName).readLines().forEach {
+        field.add(it.split(' ').map { it.toInt() }.toIntArray())
+    }
+    if (field.isEmpty()) return 0
+    val width = field.first().size
+    val height = field.size
+    for (i in 0 until height) {
+        for (j in 0 until width) {
+            when {
+                i == 0 && j > 0 -> field[i][j] += field[i][j - 1]
+                i > 0 && j == 0 -> field[i][j] += field[i - 1][j]
+                i == 0 && j == 0 -> field[i][j] += field[i][j]
+                else -> field[i][j] += minOf(field[i - 1][j], field[i][j - 1], field[i - 1][j - 1])
+            }
+        }
+    }
+    return field[height - 1][width - 1]
 }
 
 // Задачу "Максимальное независимое множество вершин в графе без циклов"
