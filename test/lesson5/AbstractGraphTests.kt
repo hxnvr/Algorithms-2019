@@ -114,6 +114,14 @@ abstract class AbstractGraphTests {
         }.build()
         val loop3 = graph3.findEulerLoop()
         loop3.assert(shouldExist = false, graph = graph3)
+
+        val noEdgesGraph = GraphBuilder().apply {
+            val a = addVertex("A")
+            val b = addVertex("B")
+            val c = addVertex("C")
+        }.build()
+        val noEdgesLoop = noEdgesGraph.findEulerLoop()
+        noEdgesLoop.assert(shouldExist = false, graph = noEdgesGraph)
     }
 
     fun minimumSpanningTree(minimumSpanningTree: Graph.() -> Graph) {
@@ -174,6 +182,15 @@ abstract class AbstractGraphTests {
         val tree3 = graph3.minimumSpanningTree()
         assertEquals(4, tree3.edges.size)
         assertEquals(4, tree3.findBridges().size)
+
+        val myGraph = GraphBuilder().apply {
+            val a = addVertex("A")
+            val b = addVertex("B")
+            addConnection(a, b)
+        }.build()
+        val myTree = myGraph.minimumSpanningTree()
+        assertEquals(1, myTree.edges.size)
+        assertEquals(1, myTree.findBridges().size)
     }
 
     fun largestIndependentVertexSet(largestIndependentVertexSet: Graph.() -> Set<Graph.Vertex>) {
@@ -325,8 +342,35 @@ abstract class AbstractGraphTests {
             addConnection(b2, c)
             addConnection(d2, c)
         }.build()
+
         val longestPath3 = graph3.longestSimplePath()
         assertEquals(6, longestPath3.length)
+        val myGraph = GraphBuilder().apply {
+            val a = addVertex("A")
+            val b = addVertex("B")
+            val c = addVertex("C")
+            val d = addVertex("D")
+            val e = addVertex("E")
+            val f = addVertex("F")
+            val g = addVertex("G")
+            addConnection(a, b)
+            addConnection(b, c)
+            addConnection(c, d)
+            addConnection(d, e)
+            addConnection(e, f)
+            addConnection(d, g)
+            addConnection(f, a)
+        }.build()
+        val longestMyPath = myGraph.longestSimplePath()
+        assertEquals(6, longestMyPath.length)
+
+        val myGraph2 = GraphBuilder().apply {
+            val a = addVertex("A")
+            val b = addVertex("B")
+            addConnection(a, b)
+        }.build()
+        val longestMyPath2 = myGraph2.longestSimplePath()
+        assertEquals(1, longestMyPath2.length)
     }
 
 }

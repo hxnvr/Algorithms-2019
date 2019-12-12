@@ -4,6 +4,7 @@ package lesson5
 
 import lesson5.Graph.*
 import java.util.*
+import lesson5.impl.GraphBuilder
 
 /**
  * Эйлеров цикл.
@@ -35,31 +36,39 @@ import java.util.*
  */
 fun Graph.findEulerLoop(): List<Graph.Edge> {
     if (!checkForEulerCycle() || vertices.isEmpty()) return listOf()
+
     val stack = Stack<Vertex>()
     val resVertices = LinkedList<Vertex>()
     val resEdges = LinkedList<Edge>()
     val edgesList = edges
+
     stack.push(vertices.first())
+
     while (stack.isNotEmpty()) {
         val current = stack.peek()
         for (vertex in vertices) {
             val edge = getConnection(current, vertex) ?: continue
+
             if (edgesList.contains(edge)) {
                 stack.push(vertex)
                 edgesList.remove(edge)
                 break
             }
         }
+
         if (current == stack.peek()) {
             stack.pop()
             resVertices.push(current)
         }
     }
+
     for (i in 0 until resVertices.size - 1) {
         resEdges.add(getConnection(resVertices[i], resVertices[i + 1])!!)
     }
+
     return resEdges
 }
+
 fun Graph.checkForEulerCycle(): Boolean = vertices.filterNot { getNeighbors(it).size % 2 == 0 }.isEmpty()
 /**
  * Минимальное остовное дерево.
@@ -88,9 +97,32 @@ fun Graph.checkForEulerCycle(): Boolean = vertices.filterNot { getNeighbors(it).
  * E    F    I
  * |
  * J ------------ K
+ * Трудоемкость O(V)
+ * Ресурсоемкость O(V)
  */
 fun Graph.minimumSpanningTree(): Graph {
-    TODO()
+    val builder = GraphBuilder()
+    val verticesSet = mutableSetOf<Vertex>()
+    val edgesSet = mutableSetOf<Edge>()
+
+    if (vertices.isEmpty() || edges.isEmpty()) return builder.build()
+
+    for (vertex in vertices) {
+        for ((current, edge) in getConnections(vertex)) {
+            if (current !in verticesSet) {
+                verticesSet.add(current)
+                edgesSet.add(edge)
+            }
+        }
+    }
+
+    return builder.apply {
+        for (edge in edgesSet) {
+            addVertex(edge.begin)
+            addConnection(edge.begin, edge.end)
+        }
+    }.build()
+
 }
 
 /**
@@ -142,7 +174,31 @@ fun Graph.largestIndependentVertexSet(): Set<Graph.Vertex> {
  * J ------------ K
  *
  * Ответ: A, E, J, K, D, C, H, G, B, F, I
+ * Трудоемксоть O(v!)
+ * Ресурсоемкость O(v!)
  */
 fun Graph.longestSimplePath(): Path {
-    TODO()
+    if (vertices.isEmpty() || edges.isEmpty()) return Path()
+
+    val deque = ArrayDeque<Path>()
+    var longestPath = Path()
+
+    for (vertex in vertices) {
+        deque.add(Path(vertex))
+    }
+
+    while (deque.isNotEmpty()) {
+
+        val currentPath = deque.pop()
+        val lastVertex = currentPath.vertices.last()
+
+        if (currentPath.length > longestPath.length) longestPath = currentPath
+
+        for (neighbor in getNeighbors(lastVertex)) {
+            if (!currentPath.contains(neighbor)) {
+                deque.add(Path(currentPath, this, neighbor))
+            }
+        }
+    }
+    return longestPath
 }
